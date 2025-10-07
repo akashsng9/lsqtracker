@@ -1,0 +1,11 @@
+<?php
+// Schema for storing leads and their activities
+// Table: leads
+// - id (uuid, primary)
+// - first_name, last_name, email, phone, status, source, owner_id, created_on, modified_on, etc.
+// Table: lead_activities
+// - id (uuid, primary)
+// - lead_id (uuid, foreign key to leads)
+// - event_name, activity_score, created_on, type, data (json), etc.
+//
+// This schema is based on the fields from the API responses you provided.

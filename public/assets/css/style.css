@@ -1,0 +1,122 @@
+body { background: #f8f9fa; }
+
+.sidebar {
+    min-height: 100vh;
+    background: #343a40;
+    color: #fff;
+}
+
+.sidebar .sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar .sidebar-menu > li > a {
+    color: #fff;
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    align-items: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar .sidebar-menu > li > a i {
+   font-weight: normal;
+   color: rgb(207, 207, 207);
+   transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* Smoothly rotate chevron when submenu is hovered/open */
+.sidebar .has-submenu:hover > a i.fa {
+    transform: rotate(90deg);
+}
+
+.sidebar .sidebar-menu > li > a:hover i {
+   font-weight: normal;
+   color: rgb(255, 255, 255);
+}
+
+.sidebar .sidebar-menu > li > a.active,
+.sidebar .sidebar-menu > li > a:hover {
+    background: #495057;
+    color: #fff;
+}
+
+.sidebar .has-submenu .submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-left: 1rem;
+    /* Smooth expand/collapse */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+}
+
+.sidebar .has-submenu:hover > .submenu {
+    /* Set a height larger than expected submenu content */
+    max-height: 300px;
+}
+
+.sidebar .submenu li a {
+    display: block;
+    color: #fff;
+    padding: 8px 20px;
+    text-decoration: none;
+}
+
+.sidebar .submenu li a:hover {
+    background: #495057;
+}
+
+.sidebar .sidebar-header {
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 20px;
+    background: #23272b;
+}
+
+.btn-aaft
+{
+    background-color: #ff6224;
+    color: white;
+}
+.btn-aaft:hover
+{
+    background-color: #ff6224de;
+    color: white;
+}
+
+.btn-reset
+{
+    background-color: #534040;
+    color: white;
+}
+.btn-reset:hover
+{
+    background-color: #534040;
+    color: white;
+}
+
+/* Custom css */
+.select2-container--default .select2-selection--multiple .select2-selection__choice__display
+{
+    font-size: 11px;
+}
+
+.select2-container--default .select2-search--inline .select2-search__field, input {
+    font-size: 12px !important;
+}
+
+.form-inline 
+{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
