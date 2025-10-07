@@ -8,7 +8,7 @@
                     <form method="GET" class="row g-3 mb-4">
                         <div class="col-md-3">
                             <label for="first_name" class="form-label">First Name</label>
-                            <select name="first_name" id="first_name" class="form-select">
+                            <select name="first_name" id="first_name" class="form-select select2">
                                 <option value="">All</option>
                                 @if(isset($last100))
                                     @foreach($last100->pluck('FirstName')->unique()->filter()->sort() as $name)
@@ -19,7 +19,7 @@
                         </div>
                         <div class="col-md-3">
                             <label for="email" class="form-label">Email</label>
-                            <select name="email" id="email" class="form-select">
+                            <select name="email" id="email" class="form-select select2">
                                 <option value="">All</option>
                                 @if(isset($last100))
                                     @foreach($last100->pluck('EmailAddress')->unique()->filter()->sort() as $email)
@@ -31,7 +31,7 @@
                         </div>
                         <div class="col-md-3">
                             <label for="phone" class="form-label">Phone</label>
-                            <select name="phone" id="phone" class="form-select">
+                            <select name="phone" id="phone" class="form-select select2 ">
                                 <option value="">All</option>
                                 @if(isset($last100))
                                     @foreach($last100->pluck('Phone')->unique()->filter()->sort() as $phone)
@@ -43,7 +43,7 @@
                         </div>
                         <div class="col-md-3">
                             <label for="status" class="form-label">Status</label>
-                            <select name="status" id="status" class="form-select">
+                            <select name="status" id="status" class="form-select select2">
                                 <option value="">All</option>
                                 @if(isset($last100))
                                     @foreach($last100->pluck('ProspectStage')->unique()->filter()->sort() as $status)
@@ -52,7 +52,7 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="col-md-12">
+                        <div class="col-md-12 mt-2">
                             <button type="submit" class="btn btn-primary">Filter</button>
                             <a href="{{ url('/lead') }}" class="btn btn-secondary">Reset</a>
                         </div>

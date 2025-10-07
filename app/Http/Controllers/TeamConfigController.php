@@ -6,7 +6,9 @@ ini_set('max_execution_time', 0); // unlimited
 
 
 use App\Jobs\FetchLeadsJob;
+use App\Models\LeadSource;
 use App\Models\TeamConfig;
+use App\Models\TLMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -327,7 +329,17 @@ class TeamConfigController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('config.team-mumbai', compact('courses', 'lcs', 'leads'));
+        $teamLead = TLMaster::where('status','1')
+            ->select('id','tl_name')
+            ->get();
+        
+            
+        $leadType = LeadSource::where('status','1')
+            ->select('sourceType')
+            ->distinct()
+            ->get();
+
+        return view('config.team-mumbai', compact('courses', 'lcs', 'leads', 'teamLead', 'leadType'));
     }
 
     public function gurgao()
@@ -351,7 +363,16 @@ class TeamConfigController extends Controller
             ->limit(1000)
             ->get();
 
-        return view('config.team-gurgao', compact('courses', 'lcs', 'leads'));
+        $teamLead = TLMaster::where('status','1')
+            ->select('id','tl_name')
+            ->get();
+
+        $leadType = LeadSource::where('status','1')
+            ->select('sourceType')
+            ->distinct()
+            ->get();
+
+        return view('config.team-gurgao', compact('courses', 'lcs', 'leads', 'teamLead', 'leadType'));
     }
 
     // LC management: list and update status

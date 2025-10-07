@@ -85,7 +85,7 @@
                         <h2 class="mb-0">Lead Sources</h2>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('lead-sources.import.form') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('lead-sources.import.form') }}" class="btn btn-success mr-2">
                             <i class="fas fa-file-import mr-1"></i> Import CSV
                         </a>
                         <button type="button" class="btn btn-aaft" data-toggle="modal" data-target="#addSourceModal">

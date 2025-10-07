@@ -8,24 +8,24 @@
     <h3 class="mb-3">Overview</h3>
     <div class="row text-center">
       <div class="col-md-4 mb-3 course-card">
-        <div class="p-3 border rounded">
+        <div class="p-3 border rounded bg-primary text-white">
           <div class="h5 mb-1">Courses</div>
           <div class="display-4">{{ $totalCourses }}</div>
-          <div class="text-muted">Active: {{ $activeCourses }}</div>
+          <div class="text-white">Active: {{ $activeCourses }}</div>
         </div>
       </div>
       <div class="col-md-4 mb-3 tl-card">
-        <div class="p-3 border rounded">
+        <div class="p-3 border rounded bg-success text-white">
           <div class="h5 mb-1">Team Leaders</div>
           <div class="display-4">{{ $totalTLs }}</div>
-          <div class="text-muted">Active: {{ $activeTLs }}</div>
+          <div class="text-white">Active: {{ $activeTLs }}</div>
         </div>
       </div>
       <div class="col-md-4 mb-3 lc-card">
-        <div class="p-3 border rounded">
+        <div class="p-3 border rounded bg-warning text-white">
           <div class="h5 mb-1">LC Owners</div>
           <div class="display-4">{{ $totalLCs }}</div>
-          <div class="text-muted">Active: {{ $activeLCs }}</div>
+          <div class="text-white">Active: {{ $activeLCs }}</div>
         </div>
       </div>
     </div>

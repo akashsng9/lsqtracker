@@ -39,6 +39,7 @@
         @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
         @endif
+        <hr>
 
         <div class="table-responsive">
             <table class="table table-striped" id="lcTable">
