@@ -78,6 +78,8 @@ Route::get('/leads/hydrate', [LeadController::class, 'hydrateLeadsFromSearch'])
 // Team Routes
 Route::get('/team/mumbai', [TeamConfigController::class, 'mumbai'])
     ->name('team.mumbai');
+Route::get('/team/mumbai/filter', [TeamConfigController::class, 'filterMumbai'])
+    ->name('team.mumbai.filter');
 Route::get('/team/gurgaon', [TeamConfigController::class, 'gurgao'])
     ->name('team.gurgaon');
 
@@ -99,6 +101,9 @@ Route::get('/configuration/lc/{lcId}/map-courses', [TeamConfigController::class,
 Route::post('/configuration/lc/{lcId}/map-courses', [TeamConfigController::class, 'saveMapCourses'])
     ->name('configuration.lc.map-courses.save');
 
+// Reports
+Route::get('/reports/diploma-animation', [TeamConfigController::class, 'diplomaAnimationReport'])
+    ->name('reports.diploma-animation');
 
 // Lead Source Management
 // Lead Source Management
@@ -130,3 +135,7 @@ Route::resource('/configuration/tl', TLMasterController::class)->parameters([
     'destroy' => 'configuration.tl.destroy',
     'show' => 'configuration.tl.show',
 ]);
+
+Route::get('/config/config-report', [TeamConfigController::class, 'showDashboard'])
+    ->name('config.config-report');
+    

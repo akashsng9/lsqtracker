@@ -25,16 +25,36 @@
 
 <body>
     <div class="container-fluid">
+        <header class="py-2 border-bottom">
+            <div class="row">
+                <div class="col-lg-2">
+                    <h4>LSQ TRACKING</h4>
+                </div>
+                <div class="col-lg-10">
+                    <div class="userPrfile d-flex justify-content-between align-items-center">
+                        <div class="menuBar">
+                            <button class="btn btn-light" id="menuBarClick"><i class="fa fa-bars text-dark" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="user">
+                            <!-- <img src="{{ asset('assets/images/user.png') }}" alt="User"> -->
+                            <span>Akash Kr. Singh</span>
+                            <a href="#" class="btn btn-danger"><i class="fa fa-sign-out" aria-hidden="true"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
         <div class="row">
-            <nav class="col-md-2 d-none d-md-block sidebar">
-                <div class="sidebar-header">LSQ Tracking</div>
-                <ul class="sidebar-menu">
+            <nav class="sidebar" style="width: 20%;" id="sidebar">
+                <!-- <div class="sidebar-header">LSQ Tracking</div> -->
+                <ul class="sidebar-menu pt-1">
                     <li><a href="{{ route('dashboard') }}" class="@if(request()->routeIs('dashboard') || request()->routeIs('dashboard.index')) active @endif"><i class="fa fa-tachometer"></i> Dashboard</a></li>
                     <li><a href="{{ url('/lead/by-search-parameter') }}" class="@if(request()->is('lead/by-search-parameter')) active @endif"><i class="fa fa-search"></i> All Leads</a></li>
                     <li><a href="{{ url('/lead') }}" class="@if(request()->is('lead')) active @endif"><i class="fa fa-user"></i> Lead details Student</a></li>
                     <li><a href="{{ url('/lead-activity') }}" class="@if(request()->is('lead-activity')) active @endif"><i class="fa fa-history"></i> Lead Activity</a></li>
                     <li><a href="{{ url('/config/team') }}" class="@if(request()->is('config/team')) active @endif"><i class="fa fa-group"></i> Team Config</a></li>
                     <li><a href="{{ url('/config/lead-type') }}" class="@if(request()->is('config/lead-type')) active @endif"><i class="fa fa-tag"></i> Lead Type Config</a></li>
+                    <li><a href="{{ url('/config/config-report') }}" class="@if(request()->is('config/config-report')) active @endif"><i class="fa fa-tag"></i> Report</a></li>
 
                     <li class="has-submenu">
                         <a href="{{ url('/configuration/team') }}" class="@if(request()->is('configuration/*')) active @endif"><i class="fa fa-cog"></i> Configuration <i class="fa fa-chevron-right"></i></a>
@@ -51,7 +71,7 @@
                 </ul>
             </nav>
 
-            <main role="main" class="col-md-10 ml-sm-auto px-4 py-4">
+            <main role="main" id="main" style="width: 80%;" class="px-4 py-4">
                 @yield('content')
             </main>
         </div>
@@ -77,7 +97,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
             // Initialize multiple DataTables with export buttons
             const idArray = [
@@ -86,27 +106,49 @@
                 "sourcesTable", "mumbaiTable", "gurgaonTable"
             ];
 
-            idArray.forEach(function (id) {
+            idArray.forEach(function(id) {
                 const table = $('#' + id);
                 if (table.length) {
                     table.DataTable({
                         dom: 'Bfrtip',
-                        buttons: [
-                            { extend: 'copyHtml5', text: 'Copy' },
-                            { extend: 'excelHtml5', text: 'Excel' },
-                            { extend: 'csvHtml5', text: 'CSV' },
-                            { extend: 'pdfHtml5', text: 'PDF' },
-                            { extend: 'print', text: 'Print' },
-                            { extend: 'colvis', text: 'Columns' }
+                        buttons: [{
+                                extend: 'copyHtml5',
+                                text: 'Copy'
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Excel'
+                            },
+                            {
+                                extend: 'csvHtml5',
+                                text: 'CSV'
+                            },
+                            {
+                                extend: 'pdfHtml5',
+                                text: 'PDF'
+                            },
+                            {
+                                extend: 'print',
+                                text: 'Print'
+                            },
+                            {
+                                extend: 'colvis',
+                                text: 'Columns'
+                            }
                         ],
-                        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                        lengthMenu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, "All"]
+                        ],
                         pageLength: 50
                     });
                 }
             });
 
             // Select2 Initialization
-            $('.select2').select2({ width: '100%' });
+            $('.select2').select2({
+                width: '100%'
+            });
 
             $('.select2-location').select2({
                 width: '100%',
@@ -115,7 +157,11 @@
                 createTag: params => {
                     let term = $.trim(params.term);
                     if (term === '') return null;
-                    return { id: term, text: term, newTag: true };
+                    return {
+                        id: term,
+                        text: term,
+                        newTag: true
+                    };
                 }
             });
 
@@ -128,7 +174,11 @@
                     createTag: params => {
                         let term = $.trim(params.term);
                         if (term === '') return null;
-                        return { id: term, text: term, newTag: true };
+                        return {
+                            id: term,
+                            text: term,
+                            newTag: true
+                        };
                     },
                     dropdownCssClass: 'select2-dropdown-below'
                 }).on('select2:open', () => {
@@ -140,11 +190,14 @@
             $('#addSourceModal').on('shown.bs.modal', initLeadSourceSelect2);
 
             // LC Modal Dropdown Fix
-            $('#addLcModal').on('shown.bs.modal', function () {
+            $('#addLcModal').on('shown.bs.modal', function() {
                 let $tl = $('#fk_tl');
                 if ($tl.length) {
                     if ($tl.data('select2')) $tl.select2('destroy');
-                    $tl.select2({ dropdownParent: $('#addLcModal'), width: '100%' });
+                    $tl.select2({
+                        dropdownParent: $('#addLcModal'),
+                        width: '100%'
+                    });
                 }
             });
 
@@ -160,10 +213,10 @@
                 },
                 templateSelection: data => data.text,
                 escapeMarkup: m => m
-            }).on('select2:select select2:unselect', function () {
+            }).on('select2:select select2:unselect', function() {
                 const sel = $(this);
                 setTimeout(() => {
-                    $(sel).data('select2').dropdown.$results.find('.select2-results__option').each(function () {
+                    $(sel).data('select2').dropdown.$results.find('.select2-results__option').each(function() {
                         const $opt = $(this);
                         const val = $opt.data('data')?.id;
                         if (!val) return;
@@ -175,9 +228,40 @@
         });
     </script>
 
+    <script>
+        let isMenuOpen = true;
+
+        $(document).ready(function() {
+            $('#menuBarClick').click(function() {
+                if (isMenuOpen) {
+                    document.getElementById("sidebar").style.width = "0px";
+                    document.getElementById("sidebar").style.display = "none";
+                    document.getElementById("main").style.width = "100%";
+                    document.getElementById("main").style.display = "block";
+                    console.log("Sidebar closed");
+                } else {
+                    document.getElementById("sidebar").style.width = "20%";
+                    document.getElementById("sidebar").style.display = "block";
+                    document.getElementById("main").style.width = "calc(100% - 20%)";
+                    console.log("Sidebar opened");
+                }
+                isMenuOpen = !isMenuOpen;
+                console.log("isMenuOpen: " + isMenuOpen);
+            });
+        });
+        // function openNav() {
+        //     document.getElementById("sidebar").style.width = "250px";
+        // }
+
+        // function closeNav() {
+        //     document.getElementById("sidebar").style.width = "40px";
+        // }
+    </script>
+
     <!-- Blade stacks -->
     @yield('scripts')
     @stack('scripts')
 
 </body>
+
 </html>

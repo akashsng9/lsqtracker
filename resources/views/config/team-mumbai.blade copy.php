@@ -56,24 +56,35 @@
                 <thead>
                     <tr>
                         <th>Sl.</th>
-                        <th>Course_Name</th>
-                        <th>TL_Name</th>
-                        <th>LC_Name</th>
-                        <th>Lead_Type</th>
-                        <th>Total_Leads</th>
-                        <th>Total_Enrollment</th>
+                        <th>ProspectID</th>
+                        <th>Username</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>City</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Created</th>
                     </tr>
                 </thead>
                 <tbody id="filteredData">
                     @forelse($leads as $index => $lead)
                     <tr>
                         <td>{{ ($leads->currentPage() - 1) * $leads->perPage() + $loop->iteration }}</td>
-                        <td>{{ $lead->courseName ?? 'N/A' }}</td>
-                        <td>{{ $lead->tl_name ?? 'N/A' }}</td>
-                        <td>{{ $lead->lcName ?? 'N/A' }}</td>
+                        <td>{{ $lead->ProspectID ?? 'N/A' }}</td>
+                        <td>{{ trim(($lead->FirstName ?? '') . ' ' . ($lead->LastName ?? '')) ?: 'N/A' }}</td>
+                        <td>{{ $lead->Phone ?? 'N/A' }}</td>
+                        <td>{{ $lead->EmailAddress ?? 'N/A' }}</td>
+                        <td>{{ $lead->City ?? 'N/A' }}</td>
                         <td>{{ $lead->lead_source_type ?? ($lead->Source ?? 'N/A') }}</td>
-                        <td>{{ $lead->totalLeads ?? 'N/A' }}</td>
-                        <td>{{ $lead->totalEnrollment ?? 'N/A' }}</td>
+                        @php
+                            $status = $lead->Status ?? 'Inactive';
+                            $statusClass = 'bg-secondary';
+                            if ($status === 'Active') $statusClass = 'bg-success';
+                            elseif ($status === 'Pending') $statusClass = 'bg-warning';
+                            elseif ($status === 'Inactive') $statusClass = 'bg-danger';
+                        @endphp
+                        <td><span class="badge {{ $statusClass }}">{{ $status }}</span></td>
+                        <td>{{ $lead->CreatedOn ? \Carbon\Carbon::parse($lead->CreatedOn)->format('d-m-Y H:i') : 'N/A' }}</td>
                     </tr>
                     @empty
                         <tr>
@@ -83,7 +94,17 @@
                 </tbody>
             </table>
             
-          
+            <!-- Pagination -->
+            @if(method_exists($leads, 'links'))
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                    Showing {{ $leads->firstItem() ?? 0 }} to {{ $leads->lastItem() ?? 0 }} of {{ $leads->total() }} entries
+                </div>
+                <div class="pagination-container">
+                    {{ $leads->links('pagination::bootstrap-4') }}
+                </div>
+            </div>
+            @endif
         </div>
 
     </div>
@@ -93,17 +114,11 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Initialize select2
-    $('.select2-multiple').select2({
-        width: '100%',
-        placeholder: $(this).data('placeholder')
-    });
-
     // Handle form submission
     $('#filterForm').on('submit', function(e) {
         e.preventDefault();
         
-        $('#filteredData').html('<tr><td colspan="7" class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>');
+        $('#filteredData').html('<tr><td colspan="9" class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...</td></tr>');
         
         // Get form data
         var formData = $(this).serialize();
@@ -124,16 +139,28 @@ $(document).ready(function() {
                     var html = '';
                     var start = (response.pagination.current_page - 1) * response.pagination.per_page;
                     
-                    $.each(response.data, function(index, item) {
+                    $.each(response.data, function(index, lead) {
+                        // Format date
+                        var createdOn = lead.CreatedOn ? new Date(lead.CreatedOn).toLocaleString() : 'N/A';
+                        
+                        // Determine status badge class
+                        var status = lead.Status || 'Inactive';
+                        var statusClass = 'bg-secondary';
+                        if(status === 'Active') statusClass = 'bg-success';
+                        else if(status === 'Pending') statusClass = 'bg-warning';
+                        else if(status === 'Inactive') statusClass = 'bg-danger';
+                        
                         html += `
                         <tr>
                             <td>${start + index + 1}</td>
-                            <td>${item.courseName || 'N/A'}</td>
-                            <td>${item.tl_name || 'N/A'}</td>
-                            <td>${item.lcName || 'N/A'}</td>
-                            <td>${item.lead_source_type || 'N/A'}</td>
-                            <td>${item.totalLeads || '0'}</td>
-                            <td>${item.totalEnrollment || '0'}</td>
+                            <td>${lead.ProspectID || 'N/A'}</td>
+                            <td>${(lead.FirstName || '') + ' ' + (lead.LastName || '') || 'N/A'}</td>
+                            <td>${lead.Phone || 'N/A'}</td>
+                            <td>${lead.EmailAddress || 'N/A'}</td>
+                            <td>${lead.City || 'N/A'}</td>
+                            <td>${lead.lead_source_type || (lead.Source || 'N/A')}</td>
+                            <td><span class="badge ${statusClass}">${status}</span></td>
+                            <td>${createdOn}</td>
                         </tr>`;
                     });
                     
@@ -142,13 +169,13 @@ $(document).ready(function() {
                     // Update pagination
                     updatePagination(response.pagination);
                 } else {
-                    $('#filteredData').html('<tr><td colspan="7" class="text-center">No data found matching your criteria.</td></tr>');
+                    $('#filteredData').html('<tr><td colspan="9" class="text-center">No data found matching your criteria.</td></tr>');
                     $('.pagination-container').html('');
                 }
             },
             error: function(xhr) {
                 console.error(xhr);
-                $('#filteredData').html('<tr><td colspan="7" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
+                $('#filteredData').html('<tr><td colspan="9" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
                 $('.pagination-container').html('');
             }
         });
@@ -175,72 +202,37 @@ $(document).ready(function() {
         }
         
         var html = `
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div class="text-muted">
-                Showing ${pagination.from || 0} to ${pagination.to || 0} of ${pagination.total} entries
-            </div>
-            <nav aria-label="Page navigation">
-                    <li class="page-item ${pagination.current_page === 1 ? 'disabled' : ''}">
-                        <a class="page-link" href="${pagination.prev_page_url || '#'}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>`;
-                // Only show a limited number of page links
-                var startPage = Math.max(1, pagination.current_page - 2);
-                var endPage = Math.min(pagination.last_page, startPage + 4);
-                
-                // Adjust start page if we're near the end
-                if (endPage - startPage < 4 && startPage > 1) {
-                    startPage = Math.max(1, endPage - 4);
-                }
-                
-                // First page
-                if (startPage > 1) {
-                    html += `
-                    <li class="page-item">
-                        <a class="page-link" href="${pagination.path}?page=1">1</a>
-                    </li>`;
-                    if (startPage > 2) {
-                        html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                    }
-                }
-                
-                // Page numbers
-                for (var i = startPage; i <= endPage; i++) {
-                    html += `
-                    <li class="page-item ${i === pagination.current_page ? 'active' : ''}">
-                        <a class="page-link" href="${pagination.path}?page=${i}">${i}</a>
-                    </li>`;
-                }
-                
-                // Last page
-                if (endPage < pagination.last_page) {
-                    if (endPage < pagination.last_page - 1) {
-                        html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                    }
-                    html += `
-                    <li class="page-item">
-                        <a class="page-link" href="${pagination.path}?page=${pagination.last_page}">${pagination.last_page}</a>
-                    </li>`;
-                }
-                
-                html += `
-                    <li class="page-item ${pagination.current_page === pagination.last_page ? 'disabled' : ''}">
-                        <a class="page-link" href="${pagination.next_page_url || '#'}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end">
+                <li class="page-item ${pagination.current_page === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="${pagination.prev_page_url || '#'}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>`;
+        
+        for (var i = 1; i <= pagination.last_page; i++) {
+            html += `
+                <li class="page-item ${i === pagination.current_page ? 'active' : ''}">
+                    <a class="page-link" href="${pagination.path + '?page=' + i}">${i}</a>
+                </li>`;
+        }
+        
+        html += `
+                <li class="page-item ${pagination.current_page === pagination.last_page ? 'disabled' : ''}">
+                    <a class="page-link" href="${pagination.next_page_url || '#'}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="text-muted mt-2">
+            Showing ${pagination.from || 0} to ${pagination.to || 0} of ${pagination.total} entries
         </div>`;
         
         $('.pagination-container').html(html);
     }
     
-    // Trigger form submission on filter change
-    $('.select2-multiple').on('change', function() {
-        $('#filterForm').submit();
-    });
+    // Initialize the form on page load
     $('#filterForm').trigger('submit');
     
     // Close the document.ready function

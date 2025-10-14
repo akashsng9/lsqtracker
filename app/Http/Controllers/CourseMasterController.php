@@ -36,11 +36,22 @@ class CourseMasterController extends Controller
         }
         $courses = $query->orderBy('courseLocation')->orderBy('courseName')->get();
 
-        // Mapped LC counts per course
-        $counts = DB::table('tbl_lc_course_master')
+        // Get all course IDs for the current query
+        $courseIds = $courses->pluck('id')->toArray();
+
+        // Initialize all counts to 0 first
+        $counts = array_fill_keys($courseIds, 0);
+
+        // Get actual counts from the database
+        $mappedCounts = DB::table('tbl_lc_course_master')
             ->select('fk_course', DB::raw('COUNT(*) as cnt'))
+            ->whereIn('fk_course', $courseIds)
             ->groupBy('fk_course')
-            ->pluck('cnt', 'fk_course');
+            ->pluck('cnt', 'fk_course')
+            ->toArray();
+
+        // Merge the counts, preserving 0 for courses with no mappings
+        $counts = array_merge($counts, $mappedCounts);
 
         return view('course.index', [
             'courses' => $courses,

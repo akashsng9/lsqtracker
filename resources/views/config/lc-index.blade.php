@@ -46,6 +46,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Course Name</th>
                         <th>LC Name</th>
                         <th>Location</th>
                         <th>TL</th>
@@ -58,6 +59,7 @@
                     @forelse($lcs as $index => $lc)
                     <tr>
                         <td>{{ $index + 1 }}</td>
+                        <td>{{ $lc->courseName ?? '-' }}</td>
                         <td>{{ $lc->lcName }}</td>
                         <td>{{ $lc->location }}</td>
                         <td>{{ $lc->tl_name ?? '-' }}</td>

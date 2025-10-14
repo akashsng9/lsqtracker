@@ -46,7 +46,7 @@
           </tr>
         </thead>
         <tbody>
-          @forelse($courses as $index => $c)
+          @foreach($courses as $index => $c)
             <tr>
               <td>{{ $index + 1 }}</td>
               <td>{{ $c->courseName }}</td>
@@ -76,11 +76,7 @@
                 </form>
               </td>
             </tr>
-          @empty
-            <tr>
-              <td colspan="9" class="text-center">No records found.</td>
-            </tr>
-          @endforelse
+          @endforeach
         </tbody>
       </table>
     </div>

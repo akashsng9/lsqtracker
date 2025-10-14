@@ -19,17 +19,7 @@ use Illuminate\Validation\Rule;
 class TeamConfigController extends Controller
 {
     /**
-     * Display the Diploma in Animation performance report
-     *
-     * @return \Illuminate\View\View
-     */
-    public function diplomaAnimationReport()
-    {
-        // This is a static report, so we don't need to pass any data
-        // All data is hardcoded in the view
-        return view('config.diploma-animation-report');
-    }
-    /**
+{{ ... }}
      * Display a listing of the resource.
      */
     public function index()
@@ -177,12 +167,12 @@ class TeamConfigController extends Controller
         //     'message' => 'Leads fetching started in background. Please check logs or DB later.'
         // ]);
 
-        // Dispatch the background job with the request params
+         // Dispatch the background job with the request params
         FetchLeadsJob::dispatch($request->all());
 
         return redirect()
-            ->route('config.team')
-            ->with('status', 'Lead fetching has started. Check back later for results.');
+        ->route('config.team')
+        ->with('status', 'Lead fetching has started. Check back later for results.');
     }
 
 
@@ -220,69 +210,49 @@ class TeamConfigController extends Controller
             ->orderBy('lcName')
             ->get();
 
-        $teamLead = TLMaster::where('status', '1')
-            ->select('id', 'tl_name')
+        $teamLead = TLMaster::where('status','1')
+            ->select('id','tl_name')
             ->get();
-
-        $leadType = LeadSource::where('status', '1')
+            
+        $leadType = LeadSource::where('status','1')
             ->select('sourceType')
             ->distinct()
             ->get();
-
-        // Get initial data (first page, no filters) - Updated to match new table structure
-        $leads = DB::table('tbl_course_master')
+            
+        // Get initial data (first page, no filters)
+        $leads = DB::table('leads')
             ->select([
-                'tbl_course_master.courseName',
-                'tbl_tl_master.tl_name',
+                'leads.*',
                 'tbl_lead_owner_lc_master.lcName',
-                'tbl_lead_source_master.sourceType as lead_source_type',
-                DB::raw('COUNT(leads.id) as totalLeads'),
-                DB::raw('SUM(CASE WHEN leads.prospectStage = "Enrolled" THEN 1 ELSE 0 END) as totalEnrollment')
+                'tbl_tl_master.tl_name',
+                'tbl_course_master.courseName',
+                'tbl_lead_source_master.sourceType as lead_source_type'
             ])
-            ->leftJoin('tbl_lc_course_master', 'tbl_course_master.id', '=', 'tbl_lc_course_master.fk_course')
-            ->leftJoin('tbl_lead_owner_lc_master', 'tbl_lc_course_master.fk_lc', '=', 'tbl_lead_owner_lc_master.id')
+            ->leftJoin('tbl_lead_owner_lc_master', 'leads.OwnerIdName', '=', 'tbl_lead_owner_lc_master.lcName')
             ->leftJoin('tbl_tl_master', 'tbl_lead_owner_lc_master.fk_tl', '=', 'tbl_tl_master.id')
-            ->leftJoin('leads', function ($join) {
-                $join->on('leads.mx_Lead_Course', '=', 'tbl_course_master.courseName')
-                    ->on('leads.OwnerIdName', '=', 'tbl_lead_owner_lc_master.lcName');
-            })
+            ->leftJoin('tbl_course_master', 'leads.mx_Lead_Course', '=', 'tbl_course_master.courseName')
             ->leftJoin('tbl_lead_source_master', 'leads.Source', '=', 'tbl_lead_source_master.leadSource')
-            ->where('tbl_lead_owner_lc_master.status', 1)
-            ->where('tbl_tl_master.status', 1)
-            ->groupBy([
-                'tbl_course_master.courseName',
-                'tbl_tl_master.tl_name',
-                'tbl_lead_owner_lc_master.lcName',
-                'tbl_lead_source_master.sourceType'
-            ])
-            ->orderBy('tbl_course_master.courseName')
+            ->orderBy('leads.CreatedOn', 'desc')
             ->paginate(25);
-
+            
         return view('config.team-mumbai', compact('courses', 'lcs', 'leads', 'teamLead', 'leadType'));
     }
 
     public function filterMumbai(Request $request)
     {
-        // Start building the query - Updated to match new table structure
-        $query = DB::table('tbl_course_master')
+        // Start building the query
+        $query = DB::table('leads')
             ->select([
-                'tbl_course_master.courseName',
-                'tbl_tl_master.tl_name',
+                'leads.*',
                 'tbl_lead_owner_lc_master.lcName',
-                'tbl_lead_source_master.sourceType as lead_source_type',
-                DB::raw('COUNT(leads.id) as totalLeads'),
-                DB::raw('SUM(CASE WHEN leads.prospectStage = "Enrolled" THEN 1 ELSE 0 END) as totalEnrollment')
+                'tbl_tl_master.tl_name',
+                'tbl_course_master.courseName',
+                'tbl_lead_source_master.sourceType as lead_source_type'
             ])
-            ->leftJoin('tbl_lc_course_master', 'tbl_course_master.id', '=', 'tbl_lc_course_master.fk_course')
-            ->leftJoin('tbl_lead_owner_lc_master', 'tbl_lc_course_master.fk_lc', '=', 'tbl_lead_owner_lc_master.id')
+            ->leftJoin('tbl_lead_owner_lc_master', 'leads.OwnerIdName', '=', 'tbl_lead_owner_lc_master.lcName')
             ->leftJoin('tbl_tl_master', 'tbl_lead_owner_lc_master.fk_tl', '=', 'tbl_tl_master.id')
-            ->leftJoin('leads', function ($join) {
-                $join->on('leads.mx_Lead_Course', '=', 'tbl_course_master.courseName')
-                    ->on('leads.OwnerIdName', '=', 'tbl_lead_owner_lc_master.lcName');
-            })
-            ->leftJoin('tbl_lead_source_master', 'leads.Source', '=', 'tbl_lead_source_master.leadSource')
-            ->where('tbl_lead_owner_lc_master.status', 1)
-            ->where('tbl_tl_master.status', 1);
+            ->leftJoin('tbl_course_master', 'leads.mx_Lead_Course', '=', 'tbl_course_master.courseName')
+            ->leftJoin('tbl_lead_source_master', 'leads.Source', '=', 'tbl_lead_source_master.leadSource');
 
         // Apply filters
         if ($request->has('course_name') && !empty($request->course_name)) {
@@ -301,15 +271,9 @@ class TeamConfigController extends Controller
             $query->where('tbl_lead_source_master.sourceType', $request->lead_type);
         }
 
-        // Group and order the results
-        $leads = $query->groupBy([
-            'tbl_course_master.courseName',
-            'tbl_tl_master.tl_name',
-            'tbl_lead_owner_lc_master.lcName',
-            'tbl_lead_source_master.sourceType'
-        ])
-            ->orderBy('tbl_course_master.courseName')
-            ->paginate(25);
+        // Execute the query with pagination
+        $leads = $query->orderBy('leads.CreatedOn', 'desc')
+                      ->paginate(25);
 
         // Return JSON response for AJAX requests
         if ($request->ajax() || $request->wantsJson()) {
@@ -342,11 +306,11 @@ class TeamConfigController extends Controller
             ->orderBy('lcName')
             ->get();
 
-        $teamLead = TLMaster::where('status', '1')
-            ->select('id', 'tl_name')
+        $teamLead = TLMaster::where('status','1')
+            ->select('id','tl_name')
             ->get();
-
-        $leadType = LeadSource::where('status', '1')
+            
+        $leadType = LeadSource::where('status','1')
             ->select('sourceType')
             ->distinct()
             ->get();
@@ -375,11 +339,11 @@ class TeamConfigController extends Controller
             ->limit(1000)
             ->get();
 
-        $teamLead = TLMaster::where('status', '1')
-            ->select('id', 'tl_name')
+        $teamLead = TLMaster::where('status','1')
+            ->select('id','tl_name')
             ->get();
 
-        $leadType = LeadSource::where('status', '1')
+        $leadType = LeadSource::where('status','1')
             ->select('sourceType')
             ->distinct()
             ->get();
@@ -411,8 +375,7 @@ class TeamConfigController extends Controller
 
         $query = DB::table('tbl_lead_owner_lc_master')
             ->leftJoin('tbl_tl_master as tl', 'tl.id', '=', 'tbl_lead_owner_lc_master.fk_tl')
-            ->leftJoin('tbl_lc_course_master as lcc', 'lcc.fk_lc', '=', 'tbl_lead_owner_lc_master.id')
-            ->select('tbl_lead_owner_lc_master.id', 'tbl_lead_owner_lc_master.lcName', 'tbl_lead_owner_lc_master.location', 'tbl_lead_owner_lc_master.status', 'tbl_lead_owner_lc_master.updatedAt', DB::raw('tl.tl_name as tl_name'), 'tbl_lead_owner_lc_master.fk_tl', DB::raw('(select courseName  from tbl_course_master where id = lcc.fk_course limit 1) as courseName'))
+            ->select('tbl_lead_owner_lc_master.id', 'tbl_lead_owner_lc_master.lcName', 'tbl_lead_owner_lc_master.location', 'tbl_lead_owner_lc_master.status', 'tbl_lead_owner_lc_master.updatedAt', DB::raw('tl.tl_name as tl_name'), 'tbl_lead_owner_lc_master.fk_tl')
             ->orderBy('tbl_lead_owner_lc_master.location')
             ->orderBy('tbl_lead_owner_lc_master.lcName')
             ->whereNull('tl.deleted_at');
@@ -442,10 +405,10 @@ class TeamConfigController extends Controller
             'selectedTl' => $selectedTl,
             'lcCourseCounts' => $lcCourseCounts,
         ];
-
+        
         // Debug: Log the data being passed to the view
         \Log::info('Data being passed to lc-index view:', $data);
-
+        
         return view('config.lc-index', $data);
     }
 
@@ -483,10 +446,10 @@ class TeamConfigController extends Controller
             'location' => $validated['location'],
             'fk_tl'    => (int)$validated['fk_tl'],
             'status'   => (int)$validated['status'],
-            'createdAt' => now(),
-            'updatedAt' => now(),
-            'deletedBy' => null,
-            'updatedBy' => null,
+            'createdAt'=> now(),
+            'updatedAt'=> now(),
+            'deletedBy'=> null,
+            'updatedBy'=> null,
         ]);
 
         return redirect()->route('configuration.lc.index', ['location' => $validated['location']])
@@ -519,216 +482,5 @@ class TeamConfigController extends Controller
             ]);
 
         return back()->with('success', 'TL mapping updated successfully.');
-    }
-
-    public function showDashboard()
-    {
-        $data = getDataFromOtherDb('users', ['user_type' => 'admin']);
-        // dd($data);
-        $totalDbLeads = DB::table('leads')
-            ->count();
-        $totalConversion = DB::table('leads')
-            ->where('prospectStage', 'Enrolled')
-            ->count();
-
-        // Optional: Get filter values for UI (unchanged)
-        $courseNames = DB::table('tbl_course_master')
-            ->select('id', 'courseName')
-            ->orderBy('courseName')
-            ->get();
-
-        // dd($courseNames);
-
-        // Fetch leads summary grouped by course
-        $courseLeads = DB::table('tbl_course_master')
-            ->select([
-                'tbl_course_master.id as course_id',
-                'tbl_course_master.courseName',
-                DB::raw('COUNT(leads.id) as total_leads'),
-                DB::raw('SUM(CASE WHEN leads.prospectStage = "Enrolled" THEN 1 ELSE 0 END) as enrollment_db'),
-                DB::raw('MAX(leads.updated_at) as last_updated')
-            ])
-            // ->leftJoin('tbl_lc_course_master', 'tbl_course_master.id', '=', 'tbl_lc_course_master.fk_course')
-            // ->leftJoin('tbl_lead_owner_lc_master', 'tbl_lc_course_master.fk_lc', '=', 'tbl_lead_owner_lc_master.id')
-            ->leftJoin('leads', function ($join) {
-                $join->on('leads.mx_Course_Interested', '=', 'tbl_course_master.courseName');
-                    // ->on('leads.OwnerIdName', '=', 'tbl_lead_owner_lc_master.lcName');
-            })
-            // ->where('tbl_lead_owner_lc_master.status', 1)
-            ->groupBy('tbl_course_master.id', 'tbl_course_master.courseName')
-            ->orderBy('tbl_course_master.courseName')
-            ->get();
-
-        // Build final array with required structure
-        $courses = [];
-        foreach ($courseLeads as $index => $course) {
-            $totalLeads = (int) $course->total_leads;
-            $enrollmentDb = (int) $course->enrollment_db;
-
-            // Optional: If you get LSQ enrollments from another source/table, fetch it here.
-            $enrollmentLsq = $enrollmentDb; // Replace with real LSQ value if available
-
-            $conversion = $totalLeads > 0 ? number_format(($enrollmentLsq / $totalLeads) * 100, 2) . '%' : '0%';
-
-            // Optional status (replace with real column if available)
-            $status = 'Active'; // Or derive from tbl_course_master.status if available
-
-            $courses[] = [
-                'id' => $index + 1,
-                'name' => $course->courseName,
-                'total_leads' => $totalLeads,
-                'enrollment_lsq' => $enrollmentLsq,
-                'enrollment_db' => $enrollmentDb,
-                'conversion' => $conversion,
-                'status' => $status,
-                'last_updated' => optional($course->last_updated)->format('Y-m-d') ?? null,
-                'details' => [
-                    'description' => 'Comprehensive course covering all aspects of ' . $course->courseName,
-                    'duration' => '12 months', // Replace with real value if available
-                    // 'instructors' => ...
-                    // 'modules' => ...
-                ]
-            ];
-        }
-
-        // Return to view
-        return view('config.config-report', compact('courses', 'totalDbLeads', 'totalConversion'));
-    }
-
-
-    public function showDashboard___()
-    {
-        // Get filter options
-        $courseNames = DB::table('tbl_course_master')
-            ->select('id', 'courseName')
-            ->orderBy('courseName')
-            ->get();
-
-        $lcs = DB::table('tbl_lead_owner_lc_master')
-            ->select('id', 'lcName', 'location', 'status')
-            ->where('status', 1)
-            ->orderBy('lcName')
-            ->get();
-
-        $teamLead = TLMaster::where('status', '1')
-            ->select('id', 'tl_name')
-            ->get();
-
-        $leadType = LeadSource::where('status', '1')
-            ->select('sourceType')
-            ->distinct()
-            ->get();
-
-        // Get initial data (first page, no filters) - Updated to match new table structure
-        $leads = DB::table('tbl_course_master')
-            ->select([
-                'tbl_course_master.courseName',
-                'tbl_tl_master.tl_name',
-                'tbl_lead_owner_lc_master.lcName',
-                'tbl_lead_source_master.sourceType as lead_source_type',
-                DB::raw('COUNT(leads.id) as totalLeads'),
-                DB::raw('SUM(CASE WHEN leads.prospectStage = "Enrolled" THEN 1 ELSE 0 END) as totalEnrollment')
-            ])
-            ->leftJoin('tbl_lc_course_master', 'tbl_course_master.id', '=', 'tbl_lc_course_master.fk_course')
-            ->leftJoin('tbl_lead_owner_lc_master', 'tbl_lc_course_master.fk_lc', '=', 'tbl_lead_owner_lc_master.id')
-            ->leftJoin('tbl_tl_master', 'tbl_lead_owner_lc_master.fk_tl', '=', 'tbl_tl_master.id')
-            ->leftJoin('leads', function ($join) {
-                $join->on('leads.mx_Lead_Course', '=', 'tbl_course_master.courseName')
-                    ->on('leads.OwnerIdName', '=', 'tbl_lead_owner_lc_master.lcName');
-            })
-            ->leftJoin('tbl_lead_source_master', 'leads.Source', '=', 'tbl_lead_source_master.leadSource')
-            ->where('tbl_lead_owner_lc_master.status', 1)
-            ->where('tbl_tl_master.status', 1)
-            ->groupBy([
-                'tbl_course_master.courseName',
-                'tbl_tl_master.tl_name',
-                'tbl_lead_owner_lc_master.lcName',
-                'tbl_lead_source_master.sourceType'
-            ])
-            ->orderBy('tbl_course_master.courseName')
-            ->paginate(25);
-
-        // return view('config.team-mumbai', compact('courses', 'lcs', 'leads', 'teamLead', 'leadType'));
-
-        $courses = [];
-        foreach ($courseNames as $key => $course) {
-            $totalLeads = rand(800, 1500);
-            $enrollmentLsq = rand(20, 100);
-            $enrollmentDb = round($enrollmentLsq * (0.5 + (mt_rand(0, 100) / 200)));
-            $conversion = number_format(($enrollmentLsq / $totalLeads) * 100, 2) . '%';
-            $status = ['Active', 'Inactive', 'Draft'][rand(0, 2)];
-
-            $courses[] = [
-                'id' => count($courses) + 1,
-                'name' => $course->courseName,
-                'total_leads' => $totalLeads,
-                'enrollment_lsq' => $enrollmentLsq,
-                'enrollment_db' => $enrollmentDb,
-                'conversion' => $conversion,
-                'status' => $status,
-                'last_updated' => now()->subDays(rand(1, 30))->format('Y-m-d'),
-                'details' => [
-                    'description' => 'Comprehensive course covering all aspects of ' . $key,
-                    'duration' => rand(6, 12) . ' months',
-                    // 'instructors' => $this->generateRandomNames(rand(1, 3)),
-                    // 'modules' => $this->generateRandomModules(rand(4, 8)),
-                    // 'prerequisites' => $this->generatePrerequisites($slug)
-                ]
-            ];
-        }
-
-        return view('config.config-report', compact('courses'));
-    }
-
-    private function generateRandomNames($count)
-    {
-        $firstNames = ['John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'Robert', 'Lisa'];
-        $lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia'];
-        $names = [];
-
-        for ($i = 0; $i < $count; $i++) {
-            $names[] = $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
-        }
-
-        return $names;
-    }
-
-    private function generateRandomModules($count)
-    {
-        $modules = [];
-        $topics = [
-            'Introduction',
-            'Fundamentals',
-            'Advanced Concepts',
-            'Case Studies',
-            'Practical Applications',
-            'Industry Trends',
-            'Project Work',
-            'Final Assessment'
-        ];
-
-        for ($i = 0; $i < $count; $i++) {
-            $modules[] = 'Module ' . ($i + 1) . ': ' . $topics[array_rand($topics)];
-        }
-
-        return $modules;
-    }
-
-    private function generatePrerequisites($slug)
-    {
-        $prereqs = [
-            'animation' => ['Basic drawing skills', 'Computer literacy'],
-            'graphic-design' => ['Creativity', 'Basic design concepts'],
-            'web-dev' => ['HTML/CSS basics', 'Logical thinking'],
-            'digital-marketing' => ['Communication skills', 'Social media familiarity'],
-            'data-science' => ['Basic statistics', 'Programming knowledge'],
-            'ui-ux' => ['Design thinking', 'User empathy'],
-            'mobile-app' => ['Programming basics', 'Mobile OS familiarity'],
-            'cloud' => ['Networking basics', 'Linux fundamentals'],
-            'cyber-security' => ['System administration', 'Basic programming'],
-            'ai' => ['Mathematics', 'Python programming']
-        ];
-
-        return $prereqs[$slug] ?? ['No specific prerequisites'];
     }
 }
