@@ -908,7 +908,7 @@
             $(document).on('click', '.view-details', function() {
                 var course = $(this).data('course');
                 // You can add AJAX call here to load course details
-                console.log('View details for: ' + course);
+                // console.log('View details for: ' + course);
             });
         });
 </script>

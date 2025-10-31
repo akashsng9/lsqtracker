@@ -147,7 +147,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                console.error(xhr);
+                // console.error(xhr);
                 $('#filteredData').html('<tr><td colspan="7" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
                 $('.pagination-container').html('');
             }

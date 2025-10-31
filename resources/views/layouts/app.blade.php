@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'LSQ Tracking')</title>
 
     <!-- Bootstrap -->
@@ -21,6 +22,25 @@
 
     <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        #sidebar {
+            width: 20%;
+        }
+
+        #main {
+            width: 80%;
+        }
+
+        @media only screen and (max-width: 480px) {
+            #sidebar {
+                width: 40%;
+            }
+
+            #main {
+                width: 60%;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -45,7 +65,7 @@
             </div>
         </header>
         <div class="row">
-            <nav class="sidebar" style="width: 20%;" id="sidebar">
+            <nav class="sidebar" id="sidebar">
                 <!-- <div class="sidebar-header">LSQ Tracking</div> -->
                 <ul class="sidebar-menu pt-1">
                     <li><a href="{{ route('dashboard') }}" class="@if(request()->routeIs('dashboard') || request()->routeIs('dashboard.index')) active @endif"><i class="fa fa-tachometer"></i> Dashboard</a></li>
@@ -53,11 +73,11 @@
                     <li><a href="{{ url('/lead') }}" class="@if(request()->is('lead')) active @endif"><i class="fa fa-user"></i> Lead details Student</a></li>
                     <li><a href="{{ url('/lead-activity') }}" class="@if(request()->is('lead-activity')) active @endif"><i class="fa fa-history"></i> Lead Activity</a></li>
                     <li><a href="{{ url('/config/team') }}" class="@if(request()->is('config/team')) active @endif"><i class="fa fa-group"></i> Team Config</a></li>
-                    <li><a href="{{ url('/config/lead-type') }}" class="@if(request()->is('config/lead-type')) active @endif"><i class="fa fa-tag"></i> Lead Type Config</a></li>
+                    <!-- <li><a href="{{ url('/config/lead-type') }}" class="@if(request()->is('config/lead-type')) active @endif"><i class="fa fa-tag"></i> Lead Type Config</a></li> -->
                     <li><a href="{{ url('/config/config-report') }}" class="@if(request()->is('config/config-report')) active @endif"><i class="fa fa-tag"></i> Report</a></li>
 
                     <li class="has-submenu">
-                        <a href="{{ url('/configuration/team') }}" class="@if(request()->is('configuration/*')) active @endif"><i class="fa fa-cog"></i> Configuration <i class="fa fa-chevron-right"></i></a>
+                        <a href="{{ url('/configuration/team') }}" class="@if(request()->is('configuration/*')) active @endif"><i class="fa fa-cog"></i> Configuration <i class="fa fa-chevron-right text-right"></i></a>
                         <ul class="submenu">
                             <li><a href="{{ route('configuration.course.index') }}"><i class="fa fa-book"></i> Courses</a></li>
                             <li><a href="{{ route('configuration.assigned-courses.index') }}"><i class="fa fa-book"></i> Assigned Courses</a></li>
@@ -71,7 +91,7 @@
                 </ul>
             </nav>
 
-            <main role="main" id="main" style="width: 80%;" class="px-4 py-4">
+            <main role="main" id="main" class="px-4 py-4">
                 @yield('content')
             </main>
         </div>
@@ -79,6 +99,7 @@
 
     <!-- JS Dependencies -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- DataTables + Buttons JS -->
@@ -238,15 +259,15 @@
                     document.getElementById("sidebar").style.display = "none";
                     document.getElementById("main").style.width = "100%";
                     document.getElementById("main").style.display = "block";
-                    console.log("Sidebar closed");
+                    // console.log("Sidebar closed");
                 } else {
                     document.getElementById("sidebar").style.width = "20%";
                     document.getElementById("sidebar").style.display = "block";
                     document.getElementById("main").style.width = "calc(100% - 20%)";
-                    console.log("Sidebar opened");
+                    // console.log("Sidebar opened");
                 }
                 isMenuOpen = !isMenuOpen;
-                console.log("isMenuOpen: " + isMenuOpen);
+                // console.log("isMenuOpen: " + isMenuOpen);
             });
         });
         // function openNav() {

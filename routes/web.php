@@ -136,6 +136,6 @@ Route::resource('/configuration/tl', TLMasterController::class)->parameters([
     'show' => 'configuration.tl.show',
 ]);
 
-Route::get('/config/config-report', [TeamConfigController::class, 'showDashboard'])
-    ->name('config.config-report');
-    
+Route::match(['get', 'post'], '/config/config-report', [TeamConfigController::class, 'showDashboard'])
+    ->name('config.report');
+
